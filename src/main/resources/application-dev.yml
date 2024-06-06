@@ -1,0 +1,13 @@
+spring:
+    datasource:
+        url: jdbc:mysql://awseb-e-nsvba2e9db-stack-awsebrdsdatabase-gimlrhpgtxko.c982smusa5f6.ap-northeast-2.rds.amazonaws.com/board?useSSL=false&serverTimezone=Asia/Seoul
+        username: fastcam
+        password: ahdzl0304
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+        properties:
+            hibernate:
+                format_sql: true
