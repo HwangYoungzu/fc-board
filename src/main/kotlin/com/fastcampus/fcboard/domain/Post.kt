@@ -1,6 +1,5 @@
 package com.fastcampus.fcboard.domain
 
-import com.fastcampus.fcboard.controller.dto.PostUpdateRequest
 import com.fastcampus.fcboard.exception.PostNotUpdatableException
 import com.fastcampus.fcboard.service.dto.PostUpdateRequestDto
 import jakarta.persistence.Entity
@@ -26,7 +25,7 @@ class Post(
         private set
 
     fun update(postUpdateRequestDto: PostUpdateRequestDto) {
-        if(postUpdateRequestDto.updatedBy != this.createdBy) {
+        if (postUpdateRequestDto.updatedBy != this.createdBy) {
             throw PostNotUpdatableException()
         }
         this.title = postUpdateRequestDto.title

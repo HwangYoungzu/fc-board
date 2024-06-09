@@ -18,12 +18,12 @@ class PostService(
     // 위에 readonly라 되어 있기 때문에, 한번더 지정해주면서 readonly를 빼주어야 합니다.
     // 함수단위에 있는게 먼저 적용됩니다
     @Transactional
-    fun createPost(requestDto: PostCreateRequestDto) :Long {
+    fun createPost(requestDto: PostCreateRequestDto): Long {
         return postRepository.save(requestDto.toEntity()).id
     }
 
     @Transactional
-    fun updatePost(id: Long, requestDto: PostUpdateRequestDto):Long {
+    fun updatePost(id: Long, requestDto: PostUpdateRequestDto): Long {
         println(id)
         val post = postRepository.findByIdOrNull(id) ?: throw PostNotFoundException()
         post.update(requestDto)
@@ -33,7 +33,7 @@ class PostService(
     @Transactional
     fun deletePost(id: Long, deletedBy: String): Long {
         val post = postRepository.findByIdOrNull(id) ?: throw PostNotFoundException()
-        if(post.createdBy != deletedBy) throw PostNotDeletableException()
+        if (post.createdBy != deletedBy) throw PostNotDeletableException()
         postRepository.delete(post)
         return id
     }
