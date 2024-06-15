@@ -7,13 +7,16 @@ import com.fastcampus.fcboard.exception.PostNotUpdatableException
 import com.fastcampus.fcboard.repository.PostRepository
 import com.fastcampus.fcboard.service.PostService
 import com.fastcampus.fcboard.service.dto.PostCreateRequestDto
+import com.fastcampus.fcboard.service.dto.PostSearchRequestDto
 import com.fastcampus.fcboard.service.dto.PostUpdateRequestDto
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 
 @SpringBootTest
@@ -21,6 +24,22 @@ class PostServiceTest(
     private val postService: PostService,
     private val postRepository: PostRepository,
 ) : BehaviorSpec({
+    beforeSpec {
+        postRepository.saveAll(
+            listOf(
+                Post(title = "title1", content = "content1", createdBy = "harris1"),
+                Post(title = "title12", content = "content2", createdBy = "harris1"),
+                Post(title = "title13", content = "content3", createdBy = "harris1"),
+                Post(title = "title14", content = "content4", createdBy = "harris1"),
+                Post(title = "title15", content = "content5", createdBy = "harris1"),
+                Post(title = "title6", content = "content6", createdBy = "harris2"),
+                Post(title = "title7", content = "content7", createdBy = "harris2"),
+                Post(title = "title8", content = "content8", createdBy = "harris2"),
+                Post(title = "title9", content = "content9", createdBy = "harris2"),
+                Post(title = "title10", content = "content10", createdBy = "harris2")
+            )
+        )
+    }
     given("게시물 생성시") {
         When("게시물 생성") {
             val postId = postService.createPost(
@@ -105,6 +124,55 @@ class PostServiceTest(
                 shouldThrow<PostNotDeletableException> {
                     postService.deletePost(saved2.id, "not harris")
                 }
+            }
+        }
+    }
+    given("게시뭃 상세조회시") {
+        val saved = postRepository.save(Post(title = "title", content = "content", createdBy = "harris"))
+        When("정상 조회시") {
+            val post = postService.getPost(saved.id)
+            then("게시물의 내용이 정상적으로 변환됨을 확인한다") {
+                post.id shouldBe saved.id
+                post.title shouldBe "title"
+                post.content shouldBe "content"
+                post.createdBy shouldBe "harris"
+            }
+        }
+        When("게시물이 없을 때") {
+            then("게시물을 찾을 수 없다는 예외가 발생") {
+                shouldThrow<PostNotFoundException> { postService.getPost(9999L) }
+            }
+        }
+    }
+    given("게시물 목록 조회시") {
+        val postPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto())
+        When("검색조건 없이 정상 조회시") {
+            then("게시물 페이지가 반환된다") {
+                postPage.number shouldBe 0
+                postPage.size shouldBe 5
+                postPage.content.size shouldBe 5
+                postPage.content[0].title shouldContain "title"
+                postPage.content[0].createdBy shouldContain "harris"
+            }
+        }
+        When("타이틀로 검색") {
+            val postPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(title = "title1"))
+            then("차이틀에 해당하는 게시글이 반환된다") {
+                postPage.number shouldBe 0
+                postPage.size shouldBe 5
+                postPage.content.size shouldBe 5
+                postPage.content[0].title shouldContain "title1"
+                postPage.content[0].createdBy shouldContain "harris"
+            }
+        }
+        When("작성자로 검색") {
+            then("작성자에 해당하는 게시글이 반환된다") {
+                val postPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(createdBy = "harris1"))
+                postPage.number shouldBe 0
+                postPage.size shouldBe 5
+                postPage.content.size shouldBe 5
+                postPage.content[0].title shouldContain "title"
+                postPage.content[0].createdBy shouldBe "harris1"
             }
         }
     }

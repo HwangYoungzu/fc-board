@@ -1,8 +1,8 @@
-package com.fastcampus.fcboard.controller.dto
+package com.fastcampus.fcboard.service.dto
 
-import com.fastcampus.fcboard.service.dto.PostDetailResponseDto
+import com.fastcampus.fcboard.domain.Post
 
-data class PostDetailResponse(
+data class PostDetailResponseDto(
     val id: Long,
     val title: String,
     val content: String,
@@ -10,7 +10,7 @@ data class PostDetailResponse(
     val createdAt: String,
 )
 
-fun PostDetailResponseDto.toResponse() = PostDetailResponse(
+fun Post.toDetailResponseDto() = PostDetailResponseDto(
     id = id,
     title = title,
     content = content,

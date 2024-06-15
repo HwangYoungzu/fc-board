@@ -11,7 +11,7 @@ abstract class BaseEntity(
     createdBy: String,
 ) {
     val createdBy: String = createdBy
-    val createAt: LocalDateTime = LocalDateTime.now()
+    val createdAt: LocalDateTime = LocalDateTime.now()
     var updatedBy: String = createdBy
         protected set
     var updatedAt: LocalDateTime? = null
