@@ -8,7 +8,7 @@ data class CommentResponseDto(
     val createdBy: String,
     val createdAt: String,
 )
-fun Comment.toResponseDto() =  CommentResponseDto(
+fun Comment.toResponseDto() = CommentResponseDto(
     id = id,
     content = content,
     createdBy = createdBy,

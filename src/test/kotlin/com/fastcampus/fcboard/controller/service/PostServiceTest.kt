@@ -146,12 +146,12 @@ class PostServiceTest(
                 shouldThrow<PostNotFoundException> { postService.getPost(9999L) }
             }
         }
-        When("댓글 추가시"){
+        When("댓글 추가시") {
             commentRepository.save(Comment(content = "댓글 내용1", post = saved, createdBy = "댓글 작성자"))
             commentRepository.save(Comment(content = "댓글 내용2", post = saved, createdBy = "댓글 작성자"))
             commentRepository.save(Comment(content = "댓글 내용3", post = saved, createdBy = "댓글 작성자"))
             val post = postService.getPost(saved.id)
-            then("댓글이 함께 조회됨을 확인"){
+            then("댓글이 함께 조회됨을 확인") {
                 post.comments.size shouldBe 3
                 post.comments[0].content shouldBe "댓글 내용1"
                 post.comments[1].content shouldBe "댓글 내용2"
