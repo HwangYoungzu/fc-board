@@ -5,24 +5,26 @@ Content-Type: application/json
 {
     "title":"title",
     "content": "content",
-    "createdBy": "createdBy"
+    "createdBy": "createdBy",
+    "tags": ["tags1", "tags2"]
 }
 
 ### 게시물 수정
-PUT /localhost:8080/posts/1
+PUT /localhost:8080/posts/17
 Content-Type: application/json
 
 {
     "title":"title",
     "content": "content",
-    "updatedBy": "updatedBy"
+    "updatedBy": "createdBy",
+    "tags": ["tags1", "tags2"]
 }
 
 ### 게시물 삭제
 DELETE /localhost:8080/posts/1?createdBy=harris
 
 ### 게시물 상세조회
-GET /localhost:8080/posts/1
+GET /localhost:8080/posts/17
 
 ### 게시물 목록조회
-GET /localhost:8080/posts?page=0&size=10&title=title&createdBy=harris
+GET /localhost:8080/posts?page=0&size=10&tag=kot

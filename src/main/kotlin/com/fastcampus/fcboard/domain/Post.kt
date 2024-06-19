@@ -14,6 +14,7 @@ class Post(
     createdBy: String,
     title: String,
     content: String,
+    tags: List<String> = emptyList(),
 ) : BaseEntity(
     createdBy
 ) {
@@ -32,6 +33,10 @@ class Post(
     // orphanRemoval = true 로 하면, 이 고아객체들을 자동으로 삭제 처리해줍니다
     @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = [CascadeType.ALL])
     var comments: MutableList<Comment> = mutableListOf()
+        protected set
+
+    @OneToMany(mappedBy = "post", orphanRemoval = true, cascade = [CascadeType.ALL])
+    var tags: MutableList<Tag> = tags.map { Tag(it, this, createdBy) }.toMutableList()
         protected set
 
     fun update(postUpdateRequestDto: PostUpdateRequestDto) {
