@@ -266,16 +266,16 @@ class PostServiceTest(
             }
         }
         When("태그로 검색") {
-            val postPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(tag = "tags5"))
+            val postPage3 = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(tag = "tags5"))
             then("태그에 해당하는 게시물이 반환됩니다") {
-                postPage.number shouldBe 0
-                postPage.size shouldBe 5
-                postPage.content.size shouldBe 5
-                postPage.content[0].title shouldBe "title6"
-                postPage.content[1].title shouldBe "title7"
-                postPage.content[2].title shouldBe "title8"
-                postPage.content[3].title shouldBe "title9"
-                postPage.content[4].title shouldBe "title10"
+                postPage3.number shouldBe 0
+                postPage3.size shouldBe 5
+                postPage3.content.size shouldBe 5
+                postPage3.content[0].title shouldBe "title6"
+                postPage3.content[1].title shouldBe "title7"
+                postPage3.content[2].title shouldBe "title8"
+                postPage3.content[3].title shouldBe "title9"
+                postPage3.content[4].title shouldBe "title10"
             }
         }
     }
