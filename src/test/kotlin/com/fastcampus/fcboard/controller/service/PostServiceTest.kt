@@ -2,6 +2,7 @@ package com.fastcampus.fcboard.controller.service
 
 import com.fastcampus.fcboard.domain.Comment
 import com.fastcampus.fcboard.domain.Post
+import com.fastcampus.fcboard.domain.Tag
 import com.fastcampus.fcboard.exception.PostNotDeletableException
 import com.fastcampus.fcboard.exception.PostNotFoundException
 import com.fastcampus.fcboard.exception.PostNotUpdatableException
@@ -17,6 +18,7 @@ import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
@@ -31,16 +33,16 @@ class PostServiceTest(
     beforeSpec {
         postRepository.saveAll(
             listOf(
-                Post(title = "title1", content = "content1", createdBy = "harris1"),
-                Post(title = "title12", content = "content2", createdBy = "harris1"),
-                Post(title = "title13", content = "content3", createdBy = "harris1"),
-                Post(title = "title14", content = "content4", createdBy = "harris1"),
-                Post(title = "title15", content = "content5", createdBy = "harris1"),
-                Post(title = "title6", content = "content6", createdBy = "harris2"),
-                Post(title = "title7", content = "content7", createdBy = "harris2"),
-                Post(title = "title8", content = "content8", createdBy = "harris2"),
-                Post(title = "title9", content = "content9", createdBy = "harris2"),
-                Post(title = "title10", content = "content10", createdBy = "harris2")
+                Post(title = "title1", content = "content1", createdBy = "harris1", tags = listOf("tags1", "tags2")),
+                Post(title = "title12", content = "content2", createdBy = "harris1", tags = listOf("tags1", "tags2")),
+                Post(title = "title13", content = "content3", createdBy = "harris1", tags = listOf("tags1", "tags2")),
+                Post(title = "title14", content = "content4", createdBy = "harris1", tags = listOf("tags1", "tags2")),
+                Post(title = "title15", content = "content5", createdBy = "harris1", tags = listOf("tags1", "tags2")),
+                Post(title = "title6", content = "content6", createdBy = "harris2", tags = listOf("tags1", "tags5")),
+                Post(title = "title7", content = "content7", createdBy = "harris2", tags = listOf("tags1", "tags5")),
+                Post(title = "title8", content = "content8", createdBy = "harris2", tags = listOf("tags1", "tags5")),
+                Post(title = "title9", content = "content9", createdBy = "harris2", tags = listOf("tags1", "tags5")),
+                Post(title = "title10", content = "content10", createdBy = "harris2", tags = listOf("tags1", "tags5"))
             )
         )
     }
@@ -181,6 +183,13 @@ class PostServiceTest(
     }
     given("게시뭃 상세조회시") {
         val saved = postRepository.save(Post(title = "title", content = "content", createdBy = "harris"))
+        tagRepository.saveAll(
+            listOf(
+                Tag(name = "tag1", post = saved, createdBy = "harris"),
+                Tag(name = "tag2", post = saved, createdBy = "harris"),
+                Tag(name = "tag3", post = saved, createdBy = "harris")
+            )
+        )
         When("정상 조회시") {
             val post = postService.getPost(saved.id)
             then("게시물의 내용이 정상적으로 변환됨을 확인한다") {
@@ -188,6 +197,12 @@ class PostServiceTest(
                 post.title shouldBe "title"
                 post.content shouldBe "content"
                 post.createdBy shouldBe "harris"
+            }
+            then("태스사 정상적으로 조회됨을 확인한다") {
+                post.tags.size shouldBe 3
+                post.tags[0] shouldBe "tag1"
+                post.tags[1] shouldBe "tag2"
+                post.tags[2] shouldBe "tag3"
             }
         }
         When("게시물이 없을 때") {
@@ -218,8 +233,8 @@ class PostServiceTest(
                 postPage.number shouldBe 0
                 postPage.size shouldBe 5
                 postPage.content.size shouldBe 5
-//                postPage.content[0].title shouldContain "title1"
-//                postPage.content[0].createdBy shouldContain "harris"
+                postPage.content[0].title shouldContain "title"
+                postPage.content[0].createdBy shouldContain "harris"
             }
         }
         When("타이틀로 검색") {
@@ -228,21 +243,39 @@ class PostServiceTest(
                 postPage1.number shouldBe 0
                 postPage1.size shouldBe 5
                 postPage1.content.size shouldBe 5
-//                postPage1.content[0].title shouldContain "title1"
-//                postPage1.content[0].createdBy shouldContain "harris"
+                postPage1.content[0].title shouldContain "title1"
+                postPage1.content[0].createdBy shouldContain "harris"
             }
         }
         When("작성자로 검색") {
+            val postPage2 = postService.findPageBy(
+                PageRequest.of(0, 5),
+                PostSearchRequestDto(createdBy = "harris1")
+            )
             then("작성자에 해당하는 게시글이 반환된다") {
-                val postPage2 = postService.findPageBy(
-                    PageRequest.of(0, 5),
-                    PostSearchRequestDto(createdBy = "harris1")
-                )
                 postPage2.number shouldBe 0
                 postPage2.size shouldBe 5
                 postPage2.content.size shouldBe 5
-//                postPage2.content[0].title shouldContain "title"
-//                postPage2.content[0].createdBy shouldBe "harris1"
+                postPage2.content[0].title shouldContain "title"
+                postPage2.content[0].createdBy shouldBe "harris1"
+            }
+            then("첫번째 태그가 함께 조회됨을 확인한다") {
+                postPage2.content.forEach {
+                    it.firstTag shouldBe "tags1"
+                }
+            }
+        }
+        When("태그로 검색") {
+            val postPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(tag = "tags5"))
+            then("태그에 해당하는 게시물이 반환됩니다") {
+                postPage.number shouldBe 0
+                postPage.size shouldBe 5
+                postPage.content.size shouldBe 5
+                postPage.content[0].title shouldBe "title6"
+                postPage.content[1].title shouldBe "title7"
+                postPage.content[2].title shouldBe "title8"
+                postPage.content[3].title shouldBe "title9"
+                postPage.content[4].title shouldBe "title10"
             }
         }
     }
