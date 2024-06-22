@@ -9,6 +9,7 @@ import com.fastcampus.fcboard.exception.PostNotUpdatableException
 import com.fastcampus.fcboard.repository.CommentRepository
 import com.fastcampus.fcboard.repository.PostRepository
 import com.fastcampus.fcboard.repository.TagRepository
+import com.fastcampus.fcboard.service.LikeService
 import com.fastcampus.fcboard.service.PostService
 import com.fastcampus.fcboard.service.dto.PostCreateRequestDto
 import com.fastcampus.fcboard.service.dto.PostSearchRequestDto
@@ -28,6 +29,7 @@ class PostServiceTest(
     private val postRepository: PostRepository,
     private val commentRepository: CommentRepository,
     private val tagRepository: TagRepository,
+    private val likeService: LikeService,
 ) : BehaviorSpec({
     beforeSpec {
         postRepository.saveAll(
@@ -189,6 +191,9 @@ class PostServiceTest(
                 Tag(name = "tag3", post = saved, createdBy = "harris")
             )
         )
+        likeService.createLike(saved.id, "harris")
+        likeService.createLike(saved.id, "harris1")
+        likeService.createLike(saved.id, "harris2")
         When("정상 조회시") {
             val post = postService.getPost(saved.id)
             then("게시물의 내용이 정상적으로 변환됨을 확인한다") {
@@ -197,11 +202,14 @@ class PostServiceTest(
                 post.content shouldBe "content"
                 post.createdBy shouldBe "harris"
             }
-            then("태스사 정상적으로 조회됨을 확인한다") {
+            then("태그가 정상적으로 조회됨을 확인한다") {
                 post.tags.size shouldBe 3
                 post.tags[0] shouldBe "tag1"
                 post.tags[1] shouldBe "tag2"
                 post.tags[2] shouldBe "tag3"
+            }
+            then("좋아요 개수가 조회됨을 확인한다") {
+                post.likeCount shouldBe 3
             }
         }
         When("게시물이 없을 때") {
@@ -275,6 +283,19 @@ class PostServiceTest(
                 postPage3.content[2].title shouldBe "title8"
                 postPage3.content[3].title shouldBe "title9"
                 postPage3.content[4].title shouldBe "title10"
+            }
+        }
+        When("좋아요 추가되었을 때") {
+            val postPage4 = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(tag = "tags5"))
+            postPage4.content.forEach {
+                likeService.createLike(it.id, "harris1")
+                likeService.createLike(it.id, "harris2")
+            }
+            val likedPostPage = postService.findPageBy(PageRequest.of(0, 5), PostSearchRequestDto(tag = "tags5"))
+            then("좋아요 개수가 정상적으로 확인됨") {
+                likedPostPage.content.forEach {
+                    it.likeCount shouldBe 2
+                }
             }
         }
     }

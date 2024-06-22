@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional
 @Transactional(readOnly = true)
 class PostService(
     private val postRepository: PostRepository,
+    private val likeService: LikeService,
 ) {
     // 위에 readonly라 되어 있기 때문에, 한번더 지정해주면서 readonly를 빼주어야 합니다.
     // 함수단위에 있는게 먼저 적용됩니다
@@ -45,8 +46,11 @@ class PostService(
         return id
     }
 
+    // (1) 외부 함수 정의된 값을 주입해주는 방법 1
+    // 그냥 밖에서 함수로 불러와서 값을 넣어준다
     fun getPost(id: Long): PostDetailResponseDto {
-        return postRepository.findByIdOrNull(id)?.toDetailResponseDto() ?: throw PostNotFoundException()
+        val likeCount = likeService.countLike(id)
+        return postRepository.findByIdOrNull(id)?.toDetailResponseDto(likeCount) ?: throw PostNotFoundException()
     }
 
     // Paging / Pagination
@@ -59,7 +63,9 @@ class PostService(
     // Spring Data JPA에서 Page 인터페이스의 구현 클래스 중 하나이다.
     // 생성자를 통해 List 객체, Pageable 객체, 전체 데이터의 총 개수를 받아 Page 객체를 생성한다.
     fun findPageBy(pageRequest: Pageable, postSearchRequestDto: PostSearchRequestDto): Page<PostSummaryResponseDto> {
-//        return postRepository.findAll(pageRequest).toSummaryResponseDto()
-        return postRepository.findPageBy(pageRequest, postSearchRequestDto).toSummaryResponseDto()
+        // (2) 외부 함수 정의된 값을 주입해주는 방법 2
+        // toSummaryResponseDto 에 likeService 내의 함수 countLike 를 람다로 넣어줘 의존성을 주입한다
+        // 사실 얘는 페이지라서 밖에서 호출하기가 힘들어 이러한 방법을 사용함
+        return postRepository.findPageBy(pageRequest, postSearchRequestDto).toSummaryResponseDto(likeService::countLike)
     }
 }
