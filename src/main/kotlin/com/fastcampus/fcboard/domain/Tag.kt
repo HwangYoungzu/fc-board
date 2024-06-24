@@ -1,11 +1,6 @@
 package com.fastcampus.fcboard.domain
 
-import jakarta.persistence.Entity
-import jakarta.persistence.FetchType
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.ManyToOne
+import jakarta.persistence.*
 
 @Entity
 class Tag(
@@ -21,6 +16,8 @@ class Tag(
         protected set
 
     @ManyToOne(fetch = FetchType.LAZY)
+    // 외래키 제약 조건을 제거하기 위해 NO_CONSTRAINT 설정
+    @JoinColumn(foreignKey = ForeignKey(ConstraintMode.NO_CONSTRAINT))
     var post: Post = post
         protected set
 }

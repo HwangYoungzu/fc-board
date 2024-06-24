@@ -1,5 +1,6 @@
 package com.fastcampus.fcboard.repository
 
+import com.fastcampus.fcboard.domain.QPost.post
 import com.fastcampus.fcboard.domain.QTag.tag
 import com.fastcampus.fcboard.domain.Tag
 import org.springframework.data.domain.Page
@@ -22,7 +23,7 @@ class CustomTagRepositoryImpl : CustomTagRepository, QuerydslRepositorySupport(T
         return from(tag)
             // @@@@@@@@@@@@@@@ 이 fetchJoin으로 tag 테이블과 post 테이블을 조회하여 한번에 select!!
             // tag조회에서 발생하는 N+1 문제 해결합니다
-            .join(tag.post).fetchJoin()
+            .join(tag.post, post).fetchJoin()
             // tagName과 같은 name 을 가지고 있는 행을
             .where(tag.name.eq(tagName))
             // tag 와 연관되어 있는 post 라는 테이블의 createdAt의 내림차순으로 정렬하고,
