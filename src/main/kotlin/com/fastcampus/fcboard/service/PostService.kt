@@ -3,6 +3,7 @@ package com.fastcampus.fcboard.service
 import com.fastcampus.fcboard.exception.PostNotDeletableException
 import com.fastcampus.fcboard.exception.PostNotFoundException
 import com.fastcampus.fcboard.repository.PostRepository
+import com.fastcampus.fcboard.repository.TagRepository
 import com.fastcampus.fcboard.service.dto.PostCreateRequestDto
 import com.fastcampus.fcboard.service.dto.PostDetailResponseDto
 import com.fastcampus.fcboard.service.dto.PostSearchRequestDto
@@ -22,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional
 class PostService(
     private val postRepository: PostRepository,
     private val likeService: LikeService,
+    private val tagRepository: TagRepository,
 ) {
     // 위에 readonly라 되어 있기 때문에, 한번더 지정해주면서 readonly를 빼주어야 합니다.
     // 함수단위에 있는게 먼저 적용됩니다
@@ -66,6 +68,9 @@ class PostService(
         // (2) 외부 함수 정의된 값을 주입해주는 방법 2
         // toSummaryResponseDto 에 likeService 내의 함수 countLike 를 람다로 넣어줘 의존성을 주입한다
         // 사실 얘는 페이지라서 밖에서 호출하기가 힘들어 이러한 방법을 사용함
+        postSearchRequestDto.tag?.let {
+            return tagRepository.findPageBy(pageRequest, it).toSummaryResponseDto(likeService::countLike)
+        }
         return postRepository.findPageBy(pageRequest, postSearchRequestDto).toSummaryResponseDto(likeService::countLike)
     }
 }

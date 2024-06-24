@@ -61,7 +61,7 @@ class PostController(
         pageable: Pageable,
         postSearchRequest: PostSearchRequest,
     ): Page<PostSummaryResponse> {
-        println("tag: ${postSearchRequest.tag}")
+//        println("tag: ${postSearchRequest.tag}")
 //        println("title: ${postSearchRequest.title}")
 //        println("createdBy: ${postSearchRequest.createdBy}")
 //        return Page.empty()
