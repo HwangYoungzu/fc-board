@@ -49,6 +49,5 @@ class CustomTagRepositoryImpl : CustomTagRepository, QuerydslRepositorySupport(T
         // default_batch_fetch_size를 너무 크게 설정하면 한 번에 많은 데이터를 메모리에 로드하게 됩니다.
         // 이는 메모리 사용량을 증가시키고, 메모리 부족 문제를 일으킬 수 있습니다.
         // 특히, 엔티티가 메모리를 많이 차지하거나 동시에 여러 배치 페치가 실행될 경우 문제가 심각해질 수 있습니다.
-
     }
 }
